@@ -18,6 +18,7 @@ void main() {
   // ) {
   runApp(
     MaterialApp(
+      debugShowCheckedModeBanner: false,
       darkTheme: ThemeData.dark().copyWith(
         colorScheme: kDarkColorScheme,
         cardTheme: CardTheme().copyWith(

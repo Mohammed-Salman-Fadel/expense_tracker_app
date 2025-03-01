@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
@@ -76,87 +78,133 @@ class _NewExpenseState extends State<NewExpense> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 48, 16, 16),
-      child: Column(
-        children: [
-          TextField(
-            controller: _titleController,
-            maxLength: 50,
-            decoration: InputDecoration(label: Text('Title')),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    prefixText: '\$ ',
-                    label: Text('Amount'),
-                  ),
-                ),
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      _selectedDate == null
-                          ? 'No date selected'
-                          : formatter.format(
-                            _selectedDate!,
-                          ), //?The exclamation mark forces dart to assume this value wont be null.
-                    ),
-                    IconButton(
-                      onPressed: _presentDayPicker,
-                      icon: Icon(Icons.calendar_month),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Row(
-            children: [
-              DropdownButton(
-                value: _selectedCategory,
-                items:
-                    Category.values
-                        .map(
-                          (category) => DropdownMenuItem(
-                            value: category,
-                            child: Text(category.name.toUpperCase()),
+    final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        final width = constraints.maxWidth;
+        return SizedBox(
+          height: double.infinity,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, keyboardSpace + 16),
+              child: Column(
+                children: [
+                  if (width >= 600)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _titleController,
+                            maxLength: 50,
+                            decoration: InputDecoration(label: Text('Title')),
                           ),
-                        )
-                        .toList(), //*Important - Maps, lists and iterables
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                },
+                        ),
+                        SizedBox(width: 24),
+                        Expanded(
+                          child: TextField(
+                            controller: _amountController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              prefixText: '\$ ',
+                              label: Text('Amount'),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                      ],
+                    )
+                  else
+                    TextField(
+                      controller: _titleController,
+                      maxLength: 50,
+                      decoration: InputDecoration(label: Text('Title')),
+                    ),
+                  if (width >= 600)
+                    Row(
+                      children: [
+                        DropdownButton(
+                          value: _selectedCategory,
+                          items:
+                              Category.values
+                                  .map(
+                                    (category) => DropdownMenuItem(
+                                      value: category,
+                                      child: Text(category.name.toUpperCase()),
+                                    ),
+                                  )
+                                  .toList(), //*Important - Maps, lists and iterables
+                          onChanged: (value) {
+                            if (value == null) {
+                              return;
+                            }
+                            setState(() {
+                              _selectedCategory = value;
+                            });
+                          },
+                        ),
+                        SizedBox(width: 24),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                _selectedDate == null
+                                    ? 'No date selected'
+                                    : formatter.format(
+                                      _selectedDate!,
+                                    ), //?The exclamation mark forces dart to assume this value wont be null.
+                              ),
+                              IconButton(
+                                onPressed: _presentDayPicker,
+                                icon: Icon(Icons.calendar_month),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _amountController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              prefixText: '\$ ',
+                              label: Text('Amount'),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                      ],
+                    ),
+                  SizedBox(width: 16),
+                  Row(
+                    children: [
+                      Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(
+                            context,
+                          ); //? Removes overlay from screen.
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _submitExpenseDate,
+                        child: Text('Save Expense'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              Spacer(),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); //? Removes overlay from screen.
-                },
-                child: Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: _submitExpenseDate,
-                child: Text('Save Expense'),
-              ),
-            ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
